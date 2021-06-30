@@ -1,0 +1,325 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+I. NODEJS CƠ BẢN
+	+ Tạo và cd vào thư mục mới 
+1. TẠO FILE ĐIỂM VÀO ĐỂ CHẠY APP app.js
+			
+			const http = require(`http`);
+			const config = require(`./mymodules/config`);
+			const helper = require(`./mymodules/helper`);
+			const server = http.createServer(helper.onRequest);
+
+			server.listen(config.port, config.hostname, () => {
+				console.log(`The server is running at: http://${config.hostname}:${config.port}`);
+			})
+				
+2. TẠO CÁC FILE MODULE 	
+	B. TẠO FILE MODULE/CONFIG.JS (MODULE CONFIG)
+			const port = 6969;
+			const hostname = `localhost`;
+
+			module.exports = {
+				port: port,
+				hostname: hostname
+			}
+			
+	B. TẠO FILE MODULE/HELPER.JS (MODULE HELPER)
+	
+			const fs = require(`fs`);
+			const url = require('url');
+
+			function render404(res) {
+				res.write(`Page not found`);
+				res.end();
+			}
+			/* --------------------------------------------------------- */
+			function renderHtml(path, res) {
+				fs.readFile(path, `utf8`, (err, data) => {
+					if(err) {
+						res.write(`File not found`);
+					} else {
+						res.write(data);
+					}
+					res.end();
+				});
+			}
+			/* --------------------------------------------------------- */
+			function onRequest(req, res) {
+				const baseUrl = `http://`+ req.headers.host+ `/`;
+				const path = new URL(req.url, baseUrl).pathname;
+
+				switch (path) {
+					case `/`:
+						renderHtml(`./views/home.html`, res);
+						break;
+
+					case `/home`:
+						renderHtml(`./views/home.html`, res);
+						break;
+
+					case `/about`:
+						renderHtml(`./views/about.html`, res);
+						break;
+
+					case `/contact`:
+						renderHtml(`./views/contact.html`, res);
+						break;
+
+					default:
+						render404(res);
+						break;
+				}
+			}
+			/* --------------------------------------------------------- */
+			module.exports = {
+				onRequest: onRequest
+			};
+3. CHẠY ỨNG DỤNG
+	+ npm install -g nodemon							//Cài đặt nodemon để chạy mà ko cần restart app mỗi khi thay đổi
+	+ npm install --save-dev nodemon					//Cài đặt nodemon chỉ cho lúc phát triển app
+	+ nodemon app										//Chạy app với nodemon
+	
+4. UPLOAD FILE TO SERVER 
+A. SỬ DỤNG THƯ VIỆN "FORMIDABLE"
+	+ npm install formidable							//Cài đặt thư viện
+	
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+II. EXPRESS CƠ BẢN
+- Express là một Web Framework rất nhanh cho NodeJS
+	+ mkdir myProject > cd 	myProject					//Tạo folder
+	+ npm init											//Khởi tạo dự án NodeJS
+		* Entry point: (index.js)						//thiết lập điểm vào dự án là index.js
+		* nhập các thông tin khác
+	+ npm install express --save						//Cài đặt (tích hợp) Express cục bộ vào project và save các dependencies của Express vào dự án Node
+	+ npm install express --no-save						//Cài đặt tạm thời Express cho project và ko save các dependencies
+	+ Tạo file index.js như sau:
+		/* ------------------------------------------------------- */
+			const express = require(`express`);
+			const app = express();
+			const port = 3000;
+			const hostname = `localhost`;
+			app.get(`/`, (req, res) => {
+				res.send(`<h1>Hello World</h1>`);
+			});
+
+			app.listen(port, hostname, () => {
+				console.log(`The express server is running at: http://${hostname}:${port}`);
+			}) 
+		/* ------------------------------------------------------- */
+	+ Chạy dự án:
+		nodemon index.js
+		
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+III. SỬ DỤNG EXPRESS GENERATOR (MÀ KHÔNG CẦN CÀI ĐẶT EXPRESS CƠ BẢN)
+	- Nhanh chóng tạo khung express cho app (cấu trúc express của app)
+	1. CÀI ĐẶT TOÀN CỤC LẦN ĐẦU EXPRESS-GENERATOR
+		+ npx express-generator								//Sử dụng npx, Có từ phiên bản 8.2.0
+		+ npm install -g express-generator					//Sử dụng npm để cài đặt, phải cài kiểu toàn cục.
+		+ express -h										//Hiển thị trợ giúp (help)
+		
+	2. TẠO DỰ ÁN EXPRESS MỚI
+		+ express --view=pug myProject						//Tạo ứng dụng express có tên myProject sử dụng pug làm view enginee
+		+ sinh ra thư mục myProject
+		
+	3. CHẠY DỰ ÁN
+		+ cd myProject
+		+ npm install
+		+ npm start
+	4. TÍCH HỢP NODEMON VÀO EXPRESS-GENERATOR
+		+ Vẫn cài đặt Nodemon như bình thường (nếu cài rồi thì thôi)
+		+ sửa tham số start trong phần script của file package.json
+			* "start" : "node ./bin/www"	>	"start" : "nodemon ./bin/www"
+	5. Thiết cấu trúc thư mục cho tầng views
+		+ Tạo cấu trúc thư mục sau trong views:
+			* views/layouts/								//Chứa các file layout sẽ sử dụng
+			* views/layouts/layout							//Tạo file layout sẽ sử dụng
+			* views/elements/header.ejs						//Lưu các thành phần dùng chung trong thẻ head, là các link bootstrap css và custom css
+			* views/elements/scripts.ejs					//Lưu các thành phần dùng chung là các thẻ script của bootstrap và custon js
+			* views/pages/									//Đường dẫn chứa các view của mỗi thành phần, bên trong là thư mục tương ứng của mỗi loại
+			* views/pages/admin/							//Ví dụ chứa các file tầng view của chức năng admin
+	6. Cài đặt gói hỗ trợ làm layout
+		+ npm install express-ejs-layouts					//Cài đặt gói hỗ trợ layout 
+		+ Khai báo layout trong app.js
+			* var ejsLayout = require(`express-ejs-layouts`);	//Khai báo thư viện express-ejs-layout vừa cài đặt trong app.js
+			* app.use(ejsLayout);								//Sử dụng thư viện vừa khai báo
+			* app.set(`layout`, `layouts/layout`)		 		//Thiết lập layout sẽ sử dụng bằng file layout đã tạo. Phải khải báo trước khai báo sử dụng router
+	7. Thiết lập layout cho trang riêng lẻ:
+		+ Thường thiết lập trong hàm res.render() nằm trong controller
+		+ res.render('pages/frontend/error', { title: 'Oops! File not found', layout: 'layouts/404layout' });
+		
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////		
+IV. CÀI ĐẶT VÀ SỬ DỤNG MONGOOSE
+A. CÀI ĐẶT
+	- npm install mongoose	
+/* -------------------------------------------------------------------------------- */
+B. KẾT NỐI TỚI MONGODB TỪ MONGOOSE	- Mongoose.js - Sử dụng 1 trong 2 cách sau:
+	1. Cách 1: 
+		const mongoose = require(`mongoose`);
+		mongoose.Promise = global.Promise;
+
+		mongoose.connect('mongodb://localhost/mongodbTutorial', {useNewUrlParser: true, useUnifiedTopology: true});
+		const db = mongoose.connection;
+
+		db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+		db.once('open', function() {
+			console.log(`db connected`);
+		});
+		
+	2. Cách 2
+		const mongoose = require(`mongoose`);
+		async function connect() {			
+			try {
+				await mongoose.connect('mongodb://localhost:27017/mongodbTutorial', {
+						useNewUrlParser: true,
+						useUnifiedTopology: true });
+				console.log('Connect to MongoDB successfully');
+			} catch (error) {
+				console.log('Connect to MongoDB Error');
+			}
+		}
+		module.exports = { 
+			connect,
+		};
+/* -------------------------------------------------------------------------------- */
+//////////////////////////////////////////////////////////////////////////////////////
+
+C. ĐỊNH NGHĨA VÀ TẠO CÁC MODEL, MỖI MODEL TƯƠNG ỨNG VỚI 1 COLLECTION TRONG DB
+	1. KHAI BÁO THƯ VIỆN
+	+ var mongoose = require('mongoose');
+/* -------------------------------------------------------------------------------- */	
+	2. ĐỊNH NGHĨA SCHEMA
+	
+	var SomeModelSchema = new Schema({
+		  firstname: String,
+		  lastname: String,
+		  binary: Buffer,
+		  living: Boolean,
+		  updated: { type: Date, default: Date.now() },
+		  age: { 
+				type: Number, 
+				min: [18: 'age at least 18 year old'], 							//Sử dụng validation
+				max: [65, 'age must less than 66 year old'], 					//Sử dụng validation
+				required: [true, 'Phải nhập tuổi cho trường này'] },			//Sử dụng validation
+		  mixed: Schema.Types.Mixed,
+		  _someId: Schema.Types.ObjectId,										//
+		  array: [],															//Field là mảng với các phần tử có kiểu bất kỳ
+		  ofString: [String],													//mảng với phần tử dạng chuỗi, You can also have an array of each of the other types too.
+		  nested: { stuff: { type: String, lowercase: true, trim: true } }
+	});
+/* -------------------------------------------------------------------------------- */	
+	3. ĐỊNH NGHĨA MODEL TỪ SCHEMA ĐÃ TẠO
+
+	+ var SomeModel = mongoose.model('SomeModel', SomeModelSchema );				//Định nghĩa model từ Schema vừa khai báo
+
+/* -------------------------------------------------------------------------------- */
+	4. CÁC THUỘC TÍNH ẢO CỦA MODEL - VIRTUAL PROPERTIES CỦA MODEL
+	- Là các thuộc tính của MongoDB có thể get hoặc set, nhưng ko lưu vào CSDL
+		+ getter() được sử dụng để định dạng và kết hợp với các trường khác
+		+ setter() hữu dụng khi phân tách một giá trị đơn thành nhiều giá trị để lưu trữ 
+	- Ví dụ: Tạo thuộc tính ảo (virtual property) là fullName, được kết hợp từ 2 trường là firstname và lastname, bằng virtual property dễ dàng
+	  hơn nhiều bằng cách tạo mỗi lần sử dụng fullName trong template.
+	  
+	SomeModelSchema.virtual('fullName').get(function() {
+		return this.firstname + ' ' + this.lastname;
+	});
+
+/* -------------------------------------------------------------------------------- */
+	5. CÁC METHODS VÀ QUERY HELPERS
+	- Một Schema có thể có các Methods hay Helpers sau đây:
+	a. instance methods
+		+ các Instances của Model là các Documents, 
+		+ các Documents này có nhiều instance methods dựng sẵn
+		+ có thể định nghĩa các instance methods riêng cho các Documents
+	- Ví dụ:
+	
+		SomeModelSchema.methods.findSimilarTypes = function(cb) {
+			return mongoose.model('SomeModel').find({ type: this.type }, cb);
+		};
+		
+	- Lúc này tất cả các instances của model tạo ra sau này đều có 1 method là findSimilarTypes method có sẵn.
+	
+	b. static methods
+	c. query helper
+		
+
+/* -------------------------------------------------------------------------------- */
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+V. CÀI ĐẶT CÁC PACKAGE ĐỂ FORRMAT CODE TRƯỚC KHI PUSH LÊN GITHUB
+	1. CÁC PHẦN MỀM CẦN CÀI:
+		+ Prettier									//Phần mềm định dạng cho code tự động, có thể thiết lập mỗi khi push lên git
+		+ Lint-Staged								//Cho phép chạy được các dòng lệnh, chỉ cho các file add vào Git
+		+ Husky										//Phần mềm thiết lập huck, cho phéo chạy lệnh mỗi khi action của Github xảy ra (ví dụ push)
+	2. CÀI ĐẶT	
+		npm install prettier lint-staged husky --save-dev
+	3. THIẾT LẬP TRONG PHẦN SCRIPTS CỦA FILE Package.json
+		 "scripts": {
+			"beautiful": "prettier --single-quote --trailing-comma all --tab-width 4 --write package.json controllers/*.js",			//Hoặc
+		  }
+	4. GIẢI THÍCH MỘT SỐ OPTIONS CỦA PRETTIER:
+		--single-quote								//Chuyển hết về nháy đơn
+		--trailing-comma							/Có dấu nháy đơn sau phần tử cuối của Mảng hay đối tượng
+		--write										//Thực hiện format và ghi đè file hiện tại
+		package.json controllers/*.js				//File hay Folder cần thực hiện format
+	5. THỰC HIỆN LỆNH FORMAT SAU KHI CÀI
+		npm run beautiful
+		
+/* -------------------------------------------------------------------------------- */
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+VI. CÀI ĐẶT VÀ SỬ DỤNG SASS
+	+ Viết tắt của: Syntactically Awesome Stylesheet	//Định dạng tuyệt với có cú pháp
+	+ Dùng để biên dịch ra các file css
+	+ Cho phép sử dụng biến, các rules lồng nhau, imports, kế thừa trong file Sass
+	+ Các file có phần mở rộng là: *.scss
+1. Cài đặt:
+	+ npm i sass		-g				//Thực tế sử dụng cách này, build trên Dart-sass, rename từ dart-sass > sass, cài global
+	+ npm i sass --save-dev				//Chỉ cài cho môi trường phát triển
+	+ npm i node-sass 					//F8 sử dụng cách này
+2. Cấu hình
+	+ Tạo lệnh trong package.json trong phần Scripts:
+		* "watch":"sass --watch public/scss/app.scss public/css/app.css",
+	+ Tạo cấu trúc file và thư mục:	
+		* public/scss/app.scss									//File nguồn scss cần biên dịch sang css
+		* public/css/app.css									//File đích biên dịch sang css
+	+ Chạy thử: npm run watch									//Kiểm tra đã thấy file css được biên dịch: public/css/app.css
+	+ Add file css vào ứng dụng
+
+/* -------------------------------------------------------------------------------- */
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+VII. TÙY BIẾN BOOTSTRAP 4.5 - BIÊN DỊCH LẠI BOOTSTRAP	
+	+ Tải bản Bootrap 4.5.3 Sourse code		//https://github.com/twbs/bootstrap/archive/v4.5.3.zip
+	+ Add vào Workspace của vScode
+	+ npm install							//Cài đặt Depencencies
+	+ Tải và cài Ruby and Jekyll			//https://jekyllrb.com/docs/installation/windows/
+		* 	jekyll -v						// Kiểm tra xem Jekyll đã cài chưa	
+	+ Thực hiện các lệnh biên dịch từ Sass > css
+		* https://getbootstrap.com/docs/4.5/getting-started/build-tools/#tooling-setup
+		* npm run dist						//Để biên dịch sang thư mục dist
+		* npm test							//Tương tự npm run dist, nhưng thêm vào việc test cục bộ
+		* npm run docs						//
+		
+VIII. SỬ DỤNG METHOD OVERRIDE TRONG NODE JS (CHUYỂN METHOD SANG PUT)
+	+ npm install method-override
+	+ Kích hoạt Method Override trong app.js
+		* var methodOverride = require('method-override');
+		* app.use(methodOverride('_method'));
+	+ Sửa action url trong file cần Save:
+		* action="/admin/course/save?_method=PUT"
+	+ Sửa Router sử dụng method PUT và trỏ vào controller tương ứng

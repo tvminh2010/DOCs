@@ -1,0 +1,222 @@
+I. GIỚI THIỆU VỀ MONGODB
+ - Là hệ Quản trị CSDL dạng tài liệu NoSQL,dưới dạng JSON
+ - Mỗi Bảng trong CSDL SQL tương ứng với 1 collection
+ - Mỗi Collections có nhiều Documents (Mỗi document tương ứng với 1 bản ghi (hàng) trong CSDL SQL)
+ - Mỗi Document:
+	+ Được bao bởi dấu ngoặc nhọn
+	+ Có nhiều cặp: 
+		"key": "value"
+	+ Trong document có thể có các field là các document khác.
+	+ Ví dụ:
+	{
+        "version": "4.4.6",
+        "gitVersion": "72e66213c2c3eab37d9358d5e78ad7f5c1d0d0d7",
+        "targetMinOS": "Windows 7/Windows Server 2008 R2",
+        "modules": [],
+        "allocator": "tcmalloc",
+        "javascriptEngine": "mozjs",
+        "sysInfo": "deprecated",
+        "versionArray": [4, 4, 6, 0],
+        "openssl": {
+            "running": "Windows SChannel"
+        },
+        "buildEnvironment": {
+            "distmod": "windows",
+            "distarch": "x86_64",
+            "cc": "cl: Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64",
+            "ccflags": "/nologo /EHsc /W3 /wd4068 /wd4244 /wd4267 /wd4290 /wd4351 /wd4355 /wd4373 /wd4800 /wd5041 /wd4291 /we4013 /we4099 /we4930 /WX /errorReport:none /MD /O2 /Oy- /bigobj /utf-8 /permissive- /Zc:__cplusplus /Zc:sizedDealloc /volatile:iso /diagnostics:caret /std:c++17 /Gw /Gy /Zc:inline",
+            "cxx": "cl: Microsoft (R) C/C++ Optimizing Compiler Version 19.26.28806 for x64",
+            "cxxflags": "/TP",
+            "linkflags": "/nologo /DEBUG /INCREMENTAL:NO /LARGEADDRESSAWARE /OPT:REF",
+            "target_arch": "x86_64",
+            "target_os": "windows",
+            "cppdefines": "SAFEINT_USE_INTRINSICS 0 PCRE_STATIC NDEBUG BOOST_ALL_NO_LIB _UNICODE UNICODE _SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING _SILENCE_CXX17_OLD_ALLOCATOR_MEMBERS_DEPRECATION_WARNING _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING _CONSOLE _CRT_SECURE_NO_WARNINGS _SCL_SECURE_NO_WARNINGS _WIN32_WINNT 0x0A00 BOOST_USE_WINAPI_VERSION 0x0A00 NTDDI_VERSION 0x0A000000 BOOST_THREAD_VERSION 5 BOOST_THREAD_USES_DATETIME BOOST_SYSTEM_NO_DEPRECATED BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS BOOST_ENABLE_ASSERT_DEBUG_HANDLER BOOST_LOG_NO_SHORTHAND_NAMES BOOST_LOG_USE_NATIVE_SYSLOG BOOST_LOG_WITHOUT_THREAD_ATTR ABSL_FORCE_ALIGNED_ACCESS"
+        }
+    }
+- Có 02 phiên bản MongoDB là: Community và Enterprise eddition
+II. TOOL QUẢN  TRỊ MONGODB - MongoDB GUI:
+	+ MongoDBCompass:
+		* Khi cài bản Community có thêm tùy chọn cài cùng MongoDBCompass, 
+		* là tool quản lý giao diện của MongoDB, cho phép truy vấn và thao tác Kết nối đến MongoDB enginee
+	+ ROBO MONGO:
+		* Đã thay bằng công cụ "Robo 3T"
+		* Có 02 Tool trên trang chủ "https://robomongo.org/"  
+			+ "Robo 3T" và "Studio 3T", có thể tải chung hay riêng rẽ 
+			+ "Studio 3T" là anh chị em với "Robo 3T"
+		* Đã đổi tên thành "Studio-3T"
+		* Để quản trị tương tự nhưng có nhiều tính năng hơn: "MongoDBCompass" 
+III. KHỞI CHẠY MongoDB Server Instance
+	1. Khởi chạy (start) MongoDB Server từ Window Service
+		+ Sau khi cài xong MongoDB, thì trình cài đặt đã tự động cài đặt Service cho MongoDB server ở chế độ tự động 
+		+ Có thể kiểm tra và tắt Service của MongoDB Server
+		+ MongoDB server chạy ở port mặc định: 27017
+	2. Cài đặt MongoDB Server Service (Nếu hệ thống chưa cài đặt MongoDB Server Service)
+		+ Tạo các thư mục và file sau:
+			* d:\mongodb\data\db
+			* d:\mongodb\data\log\mongod.log
+			* d:\mongodb\data\config\mongod.cfg			
+				storage:
+					  dbPath		: d:\mongodb\data
+				systemLog:
+					  destination	: file
+					  logAppend		: true
+					  path			: d:\mongodb\data\log\mongod.log
+				net:
+					  port			: 27017
+					  bindIp		: 127.0.0.1
+		+ Chạy lệnh cài đặt MongoDB Server as a service
+			* mongod.exe --config "d:\mongodb\data\config\mongod.cfg" --install
+		+ Cài đặt MongoDB Server as a service bằng tiện ích của Window
+		+ Khởi chạy MongoDB service sau khi cài
+			* net start MongoDB			
+	3. Khởi chạy (start) MongoDB Server Thủ Công
+		+ Có thể khởi chạy MongoDB Server thủ công theo các bước sau:
+		+ cmd 
+			> cd d:\	
+			> md "\data\db"	
+			> "C:\Program Files\MongoDB\Server\4.4\bin\mongod.exe" --dbpath="d:\data\db" --port=27018
+		+ d:\data\db	: Là đường dẫn lưu trữ dữ liệu
+		+ Có thể chạy nhiều MongoDB Server instance trên các port khác nhau, hoặc chạy cùng với "MongoDB Server từ Window Service"
+/*------------------------------------------------------------------------------------------------------------*/
+IV. KẾT NỐI TỚI MONGODB SERVER
+	1 .KÊT NỐI BẰNG COMMAND
+		+ cmd 	>	"C:\Program Files\MongoDB\Server\4.4\bin\mongo.exe"
+		+ Hoặc có thể thiết lập biến môi trường ở đường dẫn trên và chỉ cần gõ "mongo" để kết nối shell đến MongoDB server
+	2. KẾT NỐI TỚI MONGODB SERVER BẰNG ROBO 3T
+/*------------------------------------------------------------------------------------------------------------*/
+IV. MỘT SỐ LỆNH THAO TÁC TRÊN MONGO DB
+	+ show dbs											// Hiển thị các CSDL mà MongoDB đang quản trị
+	+ use dbName										//Tạo mới db chưa có hoặc sử dụng db đã có
+	+ db.dropDatabase()									//Xóa CSDL đang có
+	+ show collections									//Hiển thị danh sách các collections (bảng) của db
+	+ db.createCollection("users")						//Tạo collection là "users"
+	+ db.users.drop()									//Xóa 1 collection có tên là "users"
+	+ db.users.insert({									//Thêm 1 document (bản ghi)
+			key: "value", 
+			key2: "value2", 
+			["Arr_Value1", "Arr_value2", {key1: "value1", key2: "value2"}]
+		})
+	+ var user = {}										//Định nghĩa 1 user
+	+ user.username = tvminh2010						//Thiết lập các thuộc tính cho biến user vừa tạo
+	+ db.users.save(user)								//Thêm 1 document (bản ghi) là biến user đã tạo
+	+ db.user.find().pretty()							//Truy vấn 1 collection có tên là: "users" ở hiển thị ở dạng dễ nhìn
+/*------------------------------------------------------------------------------------------------------------*/
+IV. MỘT SỐ LỆNH QUẢN TRỊ SỬ DỤNG CÁC MONGODB TOOLS - Phải tải và cài đặt: "Mongodb-database-tools" là các tools riêng rẽ
+1. 	EXPORT COLLECTIONS TO FILE
+	+ mongoexport --db dbName --collection collectionName --out fileName.json		//Export collection ra file json
+	+ mongoexport --db dbName --collection collectionName --out fileName.csv		//Export collection ra file csv
+	
+2. 	IMPORT COLLECTIONS FROM FILE
+	+ mongoimport --db dbName --collection collectionName --file fileName.json		//Import vào collection của db từ file json
+	+ mongoimport --db dbName --collection collectionName --file fileName.csv		//Import vào collection của db từ file csv
+3. 	BACKUP (EXPORT) DATABASE BẰNG MONGODUMP
+	+ mongodump <options> <connection-string>										//Cú pháp
+		* Danh sách các <option>:
+			--help
+			--config=<filename>
+			--version
+			--quiet
+			--verbose, -v														
+			--ssl
+			--query=<json>, -q=<json>
+			--queryFile=<path>
+			--forceTableScan
+			--excludeCollection=<string>								//Bỏ các collections ko kèm cần backup
+		* Danh sách các <option> hay sử dụng:
+			--uri=<connectionString>									//Chuỗi kết nối đến MongoDB Server
+			--host=<hostname><:port>, -h=<hostname><:port>				//Chuỗi kết nối đến MongoDB Server
+			--port=<port>												//Cổng kết nối đến MongoDB Server, nếu chuỗi kết nối ko có
+			--username=<username>, -u=<username>						//Username kết nối đến MongoDB Server, nếu chuỗi kết nối ko có
+			--password=<password>, -p=<password>						//Password kết nối đến MongoDB Server, nếu chuỗi kết nối ko có
+			
+			--db=<database>, -d=<database>								//Tên DB cần backup
+			--collection=<collection>, -c=<collection>					//Tên các collection cần backup, nếu bỏ trống thì backup tất
+			--gzip														//Nén file xuất ra, đuôi file sẽ có phần mở rộng là: *.gz
+			--out=<path>, -o=<path>										//Chỉ ra đường dẫn xuất ra file backup (bson file)
+																		//Nếu ko có option này, sẽ xuất các output files ra thư mục /dump tại folder hiện hành
+																		//Không sử dụng với: --archive
+			--archive=<fileName>										//Viết các output ra file lưu trữ và đặt tên là: "fileName"	
+																		//Nếu không có option này sẽ viết ra standard output (stdout)
+																		//Khôi phục bằng mongorestore ko sử dụng tùy chọn --db và --collection
+			--archive													//Không có tùy chọn fileName, output to "Stand output Stream"
+																		//Không sử dụng với: --out
+			
+	+ mongodump --host="mongodb0.example.com:27017"  					//Kết nối đến MongoDB Server
+	+ mongodump --host="mongodb0.example.com" --port=27017				//Kết nối đến MongoDB Server
+	+ Ko cần connection-string nếu connect đến Local MongoDB Server
+/*------------------------------------------------------------------------------------------------------------*/
+4. 	RESTORE (EXPORT) DATABASE BẰNG MONGORESTORE
+	+ mongorestore <options> <connection-string> <directory/file to restore>	//Cú pháp
+		* Danh sách các <option>:
+			--help
+			--config=<filename>
+			--version
+			--quiet
+			--verbose, -v
+			--ssl
+			--nsExclude=<namespace pattern>
+			--nsInclude=<namespace pattern>								//Phải sử dụng tùy chọn này khi restore từ archive file hay folder
+			--nsFrom=<namespace pattern>
+			--nsTo=<namespace pattern>
+			--drop
+		* Danh sách các <option> hay sử dụng:
+			--uri=<connectionString>
+			--host=<hostname><:port>, -h=<hostname><:port>
+			--port=<port>
+			--password=<password>, -p=<password>
+			--db=<database>, -d=<database>								//Không sử dụng khi restore từ folder hoặc archive file
+			--collection=<collection>, -c=<collection>					//Không sử dụng khi restore từ folder hoặc archive file
+			<path>														//Đường dẫn đến file lưu backup, không dùng chung với option --dir=string
+			--dir=string												//Đường dẫn đến file lưu backup 
+																		//Không dùng với <path> (nếu đã khai báo path thì thôi --dir)
+			--gzip														//Khôi phục các file nén được tạo bởi lệnh mongodump có tùy chọn --gzip
+			--archive=<file>											//Khôi phục từ archive file 
+																		//Không sử dụng với --dir
+5. VÍ DỤ VỀ BACKUP VÀ KHÔI DATABASE BẰNG MONGODUMP/ MONGORESTORE
+	- BACKUP/RESTORE KHÔNG SỬ DỤNG --ARCHIVE CÓ NÉN GZIP
+		+ mongodump --db=dbName --out=backup/ --gzip					//Backup dbName, tạo các file nén *.gz, lưu trong backup/
+		+ mongorestore --db=dbName --gzip backup/dbName	 hoặc			//Restore
+		+ mongorestore --db=dbName --gzip --dir=backup/dbName			//hoặc Restore
+	- BACKUP/RESTORE SỬ DỤNG --ARCHIVE CÓ NÉN GZIP
+		+ mongodump --db=dbName --archive=dbName.2705021.gz --gzip									//Backup
+		+ mongorestore --archive=dbName.2705021.gz --nsInclude="dbName.*" --gzip					//Restore, dbName phải trùng với tên CSDL ban đầu
+		+ mongorestore --archive=dbName.2705021.gz --nsFrom='dbName.*' --nsTo='batky.*' --gzip		//Restore dbName phải trùng với tên CSDL ban đầu
+/*------------------------------------------------------------------------------------------------------------*/		
+V. LOAD DỮ CÁC DOCUMENTS VÀO COLLECTIONS TỪ CÁC FILE JS
+	- Tạo file javascipt:
+		+ load.js					//load từng 1 document vào collection
+			 db.users.save({ 
+				user_name: "haongtoan000",
+				password: "123456", 
+				email: "hoangtoan@gmail.com", 
+				status: "active" 
+			})
+		+ load2.js					//load từng 1 document vào collection
+			var user = {}
+				user.username= "Hoang Toan 3";
+				user.password="12345678910";
+				user.email = "hoangtoan@gmail.com"
+				user.status = "active";
+				db.users.insert(user);
+		+ load3.js					//Load nhiều documents vào collection
+			var user = [
+				{firstName: "Hiền", lastName: "Phạm Thị Thu", username: "ptthien", email: "thuhien0682@gmail.com", pasword: "123456789", status: "active"},
+				{firstName: "Trang", lastName: "Trịnh Thị Thu", username: "tttrang", email: "tttrang2021@gmail.com", pasword: "123456789", status: "active"},
+				{firstName: "Chau", lastName: "Trịnh Bảo", username: "tbchau", email: "tbchau@gmail.com", pasword: "123456789", status: "inactive"},
+				{firstname: "Hoang Toàn", skills: ["PHP", "java", {framework1: "Spring", framework2: "lavarel"}]}
+			]
+			db.users.insert(user);
+	- Nạp dữ liệu vào collection:
+		+ load("js/load.js")
+		+ load("js/load2.js")
+		+ load("js/load3.js")
+				
+/*------------------------------------------------------------------------------------------------------------*/						
+VI. UPDATE CÁC FIELD TRONG DOCUMENTS		
+	- Cú pháp:	db.collection.update ( <query>, <update>, <option>)
+	- Ví dụ:
+		db.users.update(
+			{email: "tvminh2010@gmail.com"},						//Query, lọc lấy user có email "tvminh2010@gmail"
+			{$set: {fullName: "Trinh Van Min"}},					//Đặt giá trị cho trường fullName là: "Trinh Van Minh", hoặc tạo mới trường mới là fullName nếu chưa có và gán giá trị là: "Trinh Van Minh"
+			{ upsert: true, multi: false}							//Nếu Query không tìm thấy thì tạo bản ghi mới, chỉ thao tác cho 1 bản ghi đầu tìm thấy
+		)
